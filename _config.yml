@@ -21,9 +21,9 @@
 title: TODO - Fix Later
 email: juha.t.koivistoinen@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Rumblings about programming and computer graphics
+  Rumblings about computer graphics and programming.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://todofixlater.org" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: juhatkoiv
 
 # Build settings
