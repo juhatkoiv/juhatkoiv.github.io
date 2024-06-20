@@ -1,13 +1,141 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-02-19T23:55:15+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">TODO - Fix Later</title><subtitle>Rumblings about computer graphics and programming.</subtitle><entry><title type="html">Gaussian blur shader in Unity - The cost of configurability</title><link href="http://localhost:4000/graphics/-/unity/2024/02/17/cost-of-configurability.html" rel="alternate" type="text/html" title="Gaussian blur shader in Unity - The cost of configurability" /><published>2024-02-17T00:00:00+02:00</published><updated>2024-02-17T00:00:00+02:00</updated><id>http://localhost:4000/graphics/-/unity/2024/02/17/cost-of-configurability</id><content type="html" xml:base="http://localhost:4000/graphics/-/unity/2024/02/17/cost-of-configurability.html"><![CDATA[<h1 id="gaussian-blur-shader-in-unity---the-cost-of-configurability">Gaussian blur shader in Unity - The cost of configurability</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2024-06-20T22:49:36+03:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">TODO - Fix Later</title><subtitle>Rumblings about computer graphics and programming.</subtitle><entry><title type="html">Gaussian blur shader in Unity - The cost of configurability</title><link href="http://localhost:4000/graphics/-/unity/2024/02/17/cost-of-configurability.html" rel="alternate" type="text/html" title="Gaussian blur shader in Unity - The cost of configurability" /><published>2024-02-17T00:00:00+02:00</published><updated>2024-02-17T00:00:00+02:00</updated><id>http://localhost:4000/graphics/-/unity/2024/02/17/cost-of-configurability</id><content type="html" xml:base="http://localhost:4000/graphics/-/unity/2024/02/17/cost-of-configurability.html"><![CDATA[<h1 id="gaussian-blur-shader-in-unity---the-cost-of-configurability">Gaussian blur shader in Unity - The cost of configurability</h1>
 
 <blockquote>
-  <p>ABSTRACT - Here, two versions of the same Gaussian blur shader were implemented in Unity as Render Features. From both implementations, separate builds were made, and run with NVidia NSight Graphics. Subsequently, their captures were explored. First shader supported client side-configurability for kernel size and sigma, and the gaussian weights were computed on a shader. For the other the Gaussian weights were precomputed and added to the shader as static constants. On both implementations, the kernel size was 21 x 21. Both shaders exhibited similarities in stalls and cache misses possibly due to similar requirements for texture reads. Unremarkably, the precomputed version executed less than half the ALU and FP operations compared to the configurable version. The precomputed version also proved to have higher SM occupancy. The conclusion is that although the texture reads are the most demanding part of both shaders, to fully optimize blur shaders, the demand for configurability should be questioned. Best results in optimizations are often gained by targeting use-case specific implementations over generic ones.</p>
+  <p>ABSTRACT - Here, two versions of the same Gaussian blur shader were implemented in Unity as Render Features. From both implementations, separate builds were made, and run with NVidia NSight Graphics. Subsequently, their captures were explored. First shader supported client side-configurability for kernel size and sigma, and the gaussian weights were computed on a shader. For the other the Gaussian weights were precomputed and added to the shader as static constants. On both implementations, the kernel size was 21 x 21. Both shaders exhibited similarities in stalls and cache misses possibly due to similar requirements for texture reads. Unremarkably, the precomputed version executed less than half the ALU and FP operations compared to the configurable version. The precomputed version also proved to have higher SM occupancy, and on furhter optimizations, also higher SM PS throughput. The conclusion is that although the texture reads are the most demanding part of both shaders, to fully optimize blur shaders, the demand for configurability should be questioned. Best results in optimizations are often gained by targeting use-case specific implementations over generic ones.</p>
 </blockquote>
 
 <h2 id="motivation">Motivation</h2>
-<p>After working in the gaming industry for a while, it’s come to my attention that performance related technical debt is often more welcomed than technical debt accumulating due to faulty programming practices. Issues with performance rarely arise from skill issues related to profiling and optimizing. They tend to accumulate over time because small things are neglected or not cared for. This is detrimental, and will eventually lead to unfixable situation, as the issues usually present themselves on later stages on development. At that point they are a result of tons of small things, as the accumulated computational overhead is everywhere, and impossible to fix. I wanted to start investigating different implementations both on CPU and GPU, and how they could be optimized.</p>
+<p>After working in the gaming industry for a while, it’s come to my attention that performance related technical debt is often more welcomed than technical debt accumulating due to faulty programming practices. Issues with performance rarely arise from skill issues related to profiling and optimizing. They tend to accumulate over time because small things are neglected or not cared for. This is detrimental, and will eventually lead to unfixable situation, as the issues usually present themselves on later stages on development. At that point they are a result of tons of small things, as the accumulated computational overhead is everywhere, and impossible to fix. I have been passionte about computer grpahics for a long time and, I wanted to start investigating graphics implementations both on CPU and GPU, and how they could be optimized.</p>
 
 <h2 id="configurability-bias">Configurability Bias</h2>
 <p>In case of shaders, configurability can be useful for iteration speed, so artists can tune the arguments to achieve the required visual outcome. However, after that outcome has been achieved, vast majority (almost all) of the configurations will remain the same forever. This, unsurprisingly, leads to higher computational overhead as well, and gets even worse if multiple textures are used to create an effect, where the same visual effect could be created by combining some visual elements in different textures or made with shader computations.</p>
 
-<p>For gaussian blur, investigated here, the difference in the outcome is not that dramatic, as the bottleneck appears to be the texture reads, which are always required, but still noticeable. The GPUs on low end mobile devices are not that great compared to high end development machines. In order to provide our players the best possible experience, performance in shader implementations should be better taken into account.</p>]]></content><author><name></name></author><category term="Graphics" /><category term="-" /><category term="Unity" /><summary type="html"><![CDATA[Gaussian blur shader in Unity - The cost of configurability]]></summary></entry></feed>
+<p>For gaussian blur, investigated here, the difference in the outcome is not that dramatic, as the bottleneck appears to be the texture reads, which are always required, but still noticeable. The GPUs on low end mobile devices are not that great compared to high end development machines. In order to provide our players the best possible experience, performance in shader implementations should be better taken into account.</p>
+
+<h2 id="setup">Setup</h2>
+
+<h3 id="hardware">Hardware</h3>
+<ul>
+  <li>ASUS ROG Strix</li>
+  <li>32 GB RAM</li>
+  <li>Gfx 3080 Ti</li>
+</ul>
+
+<h3 id="software">Software</h3>
+<ul>
+  <li>Unity 2022.3.8f1</li>
+  <li>URP High Fidelity PR (Quality settings: Ultra)</li>
+</ul>
+
+<p>The scene contained one cube and a Blur render feature. Blur was implemented using two passes: first one for vertical, second for horizontal blurring. Three fields - Sigma, BlurVertical and BlurHorizontal signifying FWHM/2.355, vertical and horizontal kernel sizes, respectively. Kernel size was 21 pixels per dimension, and sigma 5.</p>
+
+<p>Implemented several versions of the same blur shader.</p>
+<ol>
+  <li>One with constant buffer with three the fields configurable from the UI. Gaussian weights were calculated in the pixel shader based on the offset form the processed pixel.</li>
+  <li>Using the same values, but gaussian weights were precomputed and added to the shader as static const array of floats.</li>
+</ol>
+
+<h3 id="implementation-for-1">Implementation for (1).</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int _VerticalBlur;
+int _HorizontalBlur;
+int _Sigma;
+float4 _BlitTexture_TexelSize;
+
+float gauss(int x0, int x, float sigma)
+{
+	return exp(-(x - x0) * (x - x0) / (2 * sigma * sigma)) / (sqrt(2 * 3.14159) * sigma);
+}
+
+float4 BlurVertical(Varyings input) : SV_Target
+{
+	float3 color = float3(0, 0, 0);
+	float unitOffset = _BlitTexture_TexelSize.y;
+
+	float sum = 0;
+	for(int i = -_VerticalBlur; i &lt;= _VerticalBlur; i++)
+	{
+		float2 offset = float2(0, unitOffset * i);
+		
+		float coeff = gauss(0, i, _Sigma);
+		sum += coeff;
+		color += coeff * SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, input.texcoord + offset).rgb;
+	}
+	return float4(color.rbg / sum, 1);
+}
+
+float4 BlurHorizontal(Varyings input) : SV_Target
+{   
+	float3 color = float3(0, 0, 0);
+	float unitOffset = _BlitTexture_TexelSize.x;
+
+	float sum = 0;
+	for(int i = -_HorizontalBlur; i &lt;= _HorizontalBlur; i++)
+	{
+		float2 offset = float2(unitOffset * i, 0);
+
+		float coeff = gauss(0, i, _Sigma);
+		sum += coeff;
+		color +=coeff * SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, input.texcoord + offset).rgb;
+	}
+	return float4(color.rbg / sum, 1);
+}
+</code></pre></div></div>
+
+<h3 id="implementation-for-2">Implementation for (2).</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>float4 _BlitTexture_TexelSize;
+
+static const float kernel[21] = { 0.2699548326, 0.3947507915, 0.5546041734, 0.7486373282, 0.9709302749, 1.209853623, 1.448457764, 1.666123014, 1.841350702, 1.95521347, 1.994711402, 1.95521347, 1.841350702, 1.666123014, 1.448457764, 1.209853623, 0.9709302749, 0.7486373282, 0.5546041734, 0.3947507915, 0.2699548326 };
+
+static const float sum = 24.11446335;
+static const int kernelSize = 10;
+
+float4 BlurVertical(Varyings input) : SV_Target
+{
+	float unitOffset = _BlitTexture_TexelSize.y;
+
+	float3 color = float3(0, 0, 0);
+	
+	for(int i = 0; i &lt;= 20; i++)
+	{
+		color += kernel[i] * SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, input.texcoord + float2(0, unitOffset * (i - kernelSize))).rgb;
+	}
+
+	return float4((color.rbg) / sum, 1);
+}
+
+float4 BlurHorizontal(Varyings input) : SV_Target
+{   
+	float unitOffset = _BlitTexture_TexelSize.x;
+	
+	float3 color = float3(0, 0, 0);
+	
+	for(int i = 0; i &lt;= 20; i++)
+	{
+		color += kernel[i] * SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, input.texcoord + float2(unitOffset * (i - kernelSize), 0)).rgb;
+	}
+
+	return float4((color.rbg) / sum, 1);
+}
+</code></pre></div></div>
+
+<h3 id="measurement-and-diagnostics">Measurement and Diagnostics</h3>
+<ul>
+  <li>Initial analysis was done with RenderDoc by capturing individual frames and inspecting the data in Performance Counter Viewer.
+    <ul>
+      <li>DirectX11 builds.</li>
+    </ul>
+  </li>
+  <li>More deeper analysis was done with NVidia Nsight Graphics.
+    <ul>
+      <li>Vulkan builds.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="renderdoc">RenderDoc</h4>
+<p>The variations in the execution times of the both passes, for both (1) and (2) varied from ~1100us to ~1700us depending on when the frame was captured. Without further data and statistics, it’s not enough to make any statements to why this happened. The only conclusion that can be made from the RenderDoc data was that the blur postprocessing passes were the bottleneck.</p>
+
+<h4 id="nvidia-nsight-graphics">NVidia NSight Graphics</h4>
+<p>// TODO</p>]]></content><author><name></name></author><category term="Graphics" /><category term="-" /><category term="Unity" /><summary type="html"><![CDATA[Gaussian blur shader in Unity - The cost of configurability]]></summary></entry></feed>
